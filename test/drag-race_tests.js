@@ -79,6 +79,22 @@ describe('drag-race', () => {
     return flagman.go();
   });
 
+  it('should use instantiated observer', () => {
+    sandbox.restore();
+
+    const flagman = new FlagMan();
+    flagman.useObserver(new Observer(flagMan));
+
+    expect(flagman).to.have.property('observer').that.is.instanceOf(Observer);
+
+    suiteFactory.withFailingPromise(flagman);
+    suiteFactory.withPassingPromise(flagman);
+    suiteFactory.withTestPending(flagman);
+    suiteFactory.withTestSkip(flagman);
+
+    return flagman.go();
+  });
+
   describe('with promises', () => {
     it('should pass a test', () => {
       suiteFactory.withPassingPromise(flagMan);
