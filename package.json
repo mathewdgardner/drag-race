@@ -1,0 +1,60 @@
+{
+  "name": "drag-race",
+  "version": "0.1.0",
+  "description": "Run mocha style tests in parallel.",
+  "author": "Mathew Gardner <mathewdgardner@gmail.com>",
+  "main": "index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mathewdgardner/drag-race"
+  },
+  "bugs": {
+    "url": "https:://github.com/mathewdgardner/drag-race/issues"
+  },
+  "engines": {
+    "node": ">= 4.0.0"
+  },
+  "scripts": {
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "lint": "eslint . --fix",
+    "posttest": "npm run lint",
+    "test": "NODE_ENV=test mocha",
+    "coverage": "NODE_ENV=test istanbul cover _mocha && npm run lint"
+  },
+  "files": [
+    "bin",
+    "index.js",
+    "lib"
+  ],
+  "keywords": [
+    "bdd",
+    "behavior",
+    "event",
+    "fast",
+    "mocha",
+    "parallel",
+    "promise",
+    "runner",
+    "test"
+  ],
+  "bin": {
+    "drag-race": "./bin/drag-race"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.1",
+    "commander": "^2.9.0",
+    "glob": "^7.0.5",
+    "lodash.filter": "^4.5.1",
+    "lodash.flattendeep": "^4.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.12",
+    "eslint": "^3.2.2",
+    "eslint-plugin-mocha": "^4.3.0",
+    "istanbul": "^0.4.4",
+    "mocha": "^3.0.1",
+    "sinon": "^1.17.5"
+  }
+}

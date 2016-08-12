@@ -1,0 +1,18 @@
+machine:
+  node:
+    version: 4
+
+dependencies:
+  cache_directories:
+    - node_modules
+  override:
+    - npm install && npm update
+
+test:
+  override:
+    - npm run coverage
+    - echo $(git rev-parse HEAD) > .git/refs/heads/master
+    - npm run coveralls
+  post:
+    - sudo mv coverage $CIRCLE_ARTIFACTS || true
+    - sudo mv npm-debug.log $CIRCLE_ARTIFACTS || true
