@@ -34,7 +34,7 @@ B.map(program.args, (fileOrDir) => {
 
   if (stat.isDirectory()) {
     // Get all test file paths in directory
-    return glob(`${fileOrDir}/**/*_tests.js`, { realpath: true });
+    return glob(`${fileOrDir}/**/*.js`, { realpath: true });
   } else if (stat.isFile() && fileOrDir.match(/.+\.js$/)) {
     // Get test file path
     return fs.realpathSync(fileOrDir);
