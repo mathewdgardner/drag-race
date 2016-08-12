@@ -1,6 +1,6 @@
 {
   "name": "drag-race",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Run mocha style tests in parallel.",
   "author": "Mathew Gardner <mathewdgardner@gmail.com>",
   "main": "index.js",
