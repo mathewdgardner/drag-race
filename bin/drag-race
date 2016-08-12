@@ -22,9 +22,11 @@ const flagMan = new FlagMan({
 
 // Set globals
 global.describe = flagMan.describe.bind(flagMan);
+global.xdescribe = flagMan.xdescribe.bind(flagMan);
 global.before = flagMan.before.bind(flagMan);
 global.beforeEach = flagMan.beforeEach.bind(flagMan);
 global.it = flagMan.it.bind(flagMan);
+global.xit = flagMan.xit.bind(flagMan);
 global.afterEach = flagMan.afterEach.bind(flagMan);
 global.after = flagMan.after.bind(flagMan);
 
