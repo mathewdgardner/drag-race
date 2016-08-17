@@ -46,7 +46,8 @@
     "commander": "^2.9.0",
     "glob": "^7.0.5",
     "lodash.filter": "^4.5.1",
-    "lodash.flattendeep": "^4.3.0"
+    "lodash.flattendeep": "^4.3.0",
+    "lodash.get": "^4.4.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",

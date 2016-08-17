@@ -17,6 +17,10 @@ class CustomObserver extends require('../../lib/observers/base_observer') {
     super.pending();
   }
 
+  retry() {
+    super.retry();
+  }
+
   pass() {
     super.pass();
   }

@@ -15,6 +15,7 @@ describe('drag-race', () => {
   let beginStub;
   let startStub;
   let pendingStub;
+  let retryStub;
   let passStub;
   let failStub;
   let finishStub;
@@ -25,6 +26,7 @@ describe('drag-race', () => {
     beginStub = sandbox.stub(Observer.prototype, 'begin');
     startStub = sandbox.stub(Observer.prototype, 'start');
     pendingStub = sandbox.stub(Observer.prototype, 'pending');
+    retryStub = sandbox.stub(Observer.prototype, 'retry');
     passStub = sandbox.stub(Observer.prototype, 'pass');
     failStub = sandbox.stub(Observer.prototype, 'fail');
     finishStub = sandbox.stub(Observer.prototype, 'finish');
@@ -69,7 +71,7 @@ describe('drag-race', () => {
   it('should use custom observer', () => {
     sandbox.restore();
 
-    const flagman = new FlagMan({ observer: '../test/helpers/custom_observer' });
+    const flagman = new FlagMan({ observer: '../test/helpers/custom_observer', maxRetry: 1 });
 
     expect(flagman).to.have.property('observer').that.is.instanceOf(require('./helpers/custom_observer'));
 
@@ -611,6 +613,26 @@ describe('drag-race', () => {
           expect(err.message).to.equal('Only files and directories are allowed.');
           expect(flagMan.describes).to.have.lengthOf(0);
           expect(flagMan.tests).to.have.lengthOf(0);
+        });
+    });
+  });
+
+  describe('with retries', () => {
+    it('should retry a failing test', () => {
+      const flagman = new FlagMan({ concurrency: 1, maxRetry: 1 });
+      flagman.useObserver(new Observer(flagman));
+      suiteFactory.withFailingPromise(flagman);
+
+      return flagman.go()
+        .catch(() => {
+          expect(beginStub).to.have.property('callCount', 1);
+          expect(startStub).to.have.property('callCount', 1);
+          expect(pendingStub).to.have.property('callCount', 0);
+          expect(retryStub).to.have.property('callCount', 1);
+          expect(passStub).to.have.property('callCount', 0);
+          expect(failStub).to.have.property('callCount', 1);
+          expect(finishStub).to.have.property('callCount', 1);
+          expect(endStub).to.have.property('callCount', 1);
         });
     });
   });

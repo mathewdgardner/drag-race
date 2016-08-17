@@ -9,11 +9,13 @@ program.version(require('../package.json').version)
   .description(require('../package.json').description)
   .option('-c, --concurrency <concurrency>', 'Concurrency, defaults to infinity', Infinity)
   .option('-o, --observer <observer>', 'Observer to use, defaults to the `console` observer', './observers/console_observer')
+  .option('-r, --retry <retry>', 'Max retry count for each test, defaults to 0', 0)
   .parse(process.argv);
 
 const flagMan = new FlagMan({
   concurrency: program.concurrency,
-  observer: program.observer
+  observer: program.observer,
+  maxRetry: program.retry
 });
 
 // Add global functions
