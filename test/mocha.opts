@@ -1,3 +1,4 @@
 --check-leaks
+--globals describe,xdescribe,odescribe,before,beforeEach,it,xit,oit,afterEach,after
 --recursive
 --reporter spec

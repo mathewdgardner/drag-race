@@ -2,11 +2,7 @@
 
 'use strict';
 
-const B = require('bluebird');
 const FlagMan = require('../lib/flag_man');
-const flattenDeep = require('lodash.flattendeep');
-const fs = require('fs');
-const glob = B.promisify(require('glob'));
 const program = require('commander');
 
 program.version(require('../package.json').version)
@@ -20,38 +16,12 @@ const flagMan = new FlagMan({
   observer: program.observer
 });
 
-// Set globals
-global.describe = flagMan.describe.bind(flagMan);
-global.describe.only = flagMan.describe.only.bind(flagMan);
-global.xdescribe = flagMan.xdescribe.bind(flagMan);
-global.before = flagMan.before.bind(flagMan);
-global.beforeEach = flagMan.beforeEach.bind(flagMan);
-global.it = flagMan.it.bind(flagMan);
-global.it.only = flagMan.it.only.bind(flagMan);
-global.xit = flagMan.xit.bind(flagMan);
-global.afterEach = flagMan.afterEach.bind(flagMan);
-global.after = flagMan.after.bind(flagMan);
+// Add global functions
+flagMan.makeGlobal();
 
-// Find test files and start tests.
-B.map(program.args, (fileOrDir) => {
-  const stat = fs.statSync(fileOrDir);
+// Load test files
+flagMan.getSet(program.args)
 
-  if (stat.isDirectory()) {
-    // Get all test file paths in directory
-    return glob(`${fileOrDir}/**/*.js`, { realpath: true });
-  } else if (stat.isFile() && fileOrDir.match(/.+\.js$/)) {
-    // Get test file path
-    return fs.realpathSync(fileOrDir);
-  }
+  // Start the tests
+  .then(() => flagMan.go());
 
-  throw new Error('Only files and directories are allowed.');
-})
-
-// Flatten the files into one array
-.then(flattenDeep)
-
-// Require all the test files
-.map(require)
-
-// Start the tests
-.then(() => flagMan.go());

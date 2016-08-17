@@ -1,7 +1,9 @@
 'use strict';
 
+const _ = require('lodash');
 const expect = require('chai').expect;
 const FlagMan = require('../lib/flag_man');
+const fs = require('fs');
 const Observer = require('../lib/observers/base_observer');
 const sinon = require('sinon');
 const suiteFactory = require('./helpers/suite_factory');
@@ -93,6 +95,32 @@ describe('drag-race', () => {
     suiteFactory.withTestSkip(flagman);
 
     return flagman.go();
+  });
+
+  it('should get an error', () => {
+    sandbox.restore();
+
+    let done = false;
+    class TempObserver extends Observer {
+      constructor(flagman) {
+        super(flagman);
+      }
+
+      fail(test) {
+        expect(test.error).to.be.instanceOf(Error);
+        done = true;
+      }
+    }
+
+    const flagman = new FlagMan();
+    flagman.useObserver(new TempObserver(flagman));
+
+    suiteFactory.withFailingPromise(flagman);
+
+    return flagman.go()
+      .then(() => {
+        expect(done).to.be.true;
+      });
   });
 
   describe('with promises', () => {
@@ -501,6 +529,88 @@ describe('drag-race', () => {
           expect(failStub).to.have.property('callCount', 0);
           expect(finishStub).to.have.property('callCount', 1);
           expect(endStub).to.have.property('callCount', 1);
+        });
+    });
+  });
+
+  describe('with globals', () => {
+    it('should set global functions', () => {
+      flagMan.makeGlobal();
+
+      expect(global.describe).to.be.a('function');
+      expect(global.xdescribe).to.be.a('function');
+      expect(global.odescribe).to.be.a('function');
+      expect(global.before).to.be.a('function');
+      expect(global.beforeEach).to.be.a('function');
+      expect(global.it).to.be.a('function');
+      expect(global.xit).to.be.a('function');
+      expect(global.oit).to.be.a('function');
+      expect(global.afterEach).to.be.a('function');
+      expect(global.after).to.be.a('function');
+    });
+
+    it('should unset global functions', () => {
+      flagMan.makeGlobal();
+      flagMan.removeGlobal();
+
+      expect(global.describe).to.not.be.a('function');
+      expect(global.xdescribe).to.not.be.a('function');
+      expect(global.odescribe).to.not.be.a('function');
+      expect(global.before).to.not.be.a('function');
+      expect(global.beforeEach).to.not.be.a('function');
+      expect(global.it).to.not.be.a('function');
+      expect(global.xit).to.not.be.a('function');
+      expect(global.oit).to.not.be.a('function');
+      expect(global.afterEach).to.not.be.a('function');
+      expect(global.after).to.not.be.a('function');
+    });
+  });
+
+  describe('with test files', () => {
+    it('should load a test file', () => {
+      flagMan.makeGlobal();
+
+      const module = _.find(Object.keys(require.cache), (cache) => /^.*test_file\.js$/.test(cache));
+      delete require.cache[module];
+
+      return flagMan.getSet([ './data/test_file.js' ])
+        .then(() => flagMan.go())
+        .then(() => {
+          expect(flagMan.describes).to.have.lengthOf(1);
+          expect(flagMan.tests).to.have.lengthOf(1);
+        });
+    });
+
+    it('should load a test directory', () => {
+      flagMan.makeGlobal();
+
+      const module = _.find(Object.keys(require.cache), (cache) => /^.*test_file\.js$/.test(cache));
+      delete require.cache[module];
+
+      return flagMan.getSet([ './data' ])
+        .then(() => flagMan.go())
+        .then(() => {
+          expect(flagMan.describes).to.have.lengthOf(1);
+          expect(flagMan.tests).to.have.lengthOf(1);
+        });
+    });
+
+    it('should not load a test file or directory if it does not exist', () => {
+      sandbox.stub(fs, 'statSync', () => {
+        return {
+          isDirectory: () => false,
+          isFile: () => false
+        };
+      });
+
+      return flagMan.getSet([ 'asdf.js' ])
+        .then(() => {
+          throw Error('should not get here');
+        })
+        .catch((err) => {
+          expect(err.message).to.equal('Only files and directories are allowed.');
+          expect(flagMan.describes).to.have.lengthOf(0);
+          expect(flagMan.tests).to.have.lengthOf(0);
         });
     });
   });
