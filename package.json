@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.1",
+    "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "glob": "^7.0.5",
     "lodash.filter": "^4.5.1",
