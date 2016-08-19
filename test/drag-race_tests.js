@@ -615,6 +615,21 @@ describe('drag-race', () => {
           expect(flagMan.tests).to.have.lengthOf(0);
         });
     });
+
+    it('should clear the require cache for the test files', () => {
+      flagMan.makeGlobal();
+
+      const module = _.find(Object.keys(require.cache), (cache) => /^.*test_file\.js$/.test(cache));
+      delete require.cache[module];
+
+      return flagMan.getSet([ './data/test_file.js' ])
+        .then(() => flagMan.go())
+        .then(() => {
+          expect(flagMan.describes).to.have.lengthOf(1);
+          expect(flagMan.tests).to.have.lengthOf(1);
+          expect(require.cache[module]).to.not.exist;
+        });
+    });
   });
 
   describe('with retries', () => {
