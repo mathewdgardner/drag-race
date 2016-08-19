@@ -8,14 +8,16 @@ const program = require('commander');
 program.version(require('../package.json').version)
   .description(require('../package.json').description)
   .option('-c, --concurrency <concurrency>', 'Concurrency, defaults to infinity', Infinity)
+  .option('-d, --delay <delay>', 'Optional delay before retrying failed tests, defaults to 0', 0)
   .option('-o, --observer <observer>', 'Observer to use, defaults to the `console` observer', './observers/console_observer')
   .option('-r, --retry <retry>', 'Max retry count for each test, defaults to 0', 0)
   .parse(process.argv);
 
 const flagMan = new FlagMan({
   concurrency: program.concurrency,
-  observer: program.observer,
-  maxRetry: program.retry
+  delay: program.delay,
+  maxRetry: program.retry,
+  observer: program.observer
 });
 
 // Add global functions
